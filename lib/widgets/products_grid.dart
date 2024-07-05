@@ -20,12 +20,6 @@ class ProductsGrid extends StatelessWidget {
     final filterProvider = Provider.of<UserFilter>(context);
     final selectedBrand = Provider.of<UserFilter>(context).selectedBrand;
 
-    // final products = (selectedBrand == 'All')
-    //     ? productsProvider.items
-    //     : productsProvider.items
-    //         .where((productItem) => productItem.brand == selectedBrand)
-    //         .toList();
-
     final products = productsProvider.getFilteredItems(filterProvider);
 
     return Padding(

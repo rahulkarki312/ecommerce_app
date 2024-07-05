@@ -12,11 +12,6 @@ import './cart_screen.dart';
 import '../providers/products.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-enum FilterOptions {
-  Favorites,
-  All,
-}
-
 class ProductsOverviewScreen extends StatefulWidget {
   const ProductsOverviewScreen({super.key});
 

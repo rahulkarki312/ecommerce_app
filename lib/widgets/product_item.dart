@@ -18,6 +18,7 @@ class ProductItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context);
     final filterProvider = Provider.of<UserFilter>(context);
+    final pickedColor = filterProvider.pickedColor;
 
     final authData = Provider.of<Auth>(context, listen: false);
     return GestureDetector(
@@ -48,7 +49,10 @@ class ProductItem extends StatelessWidget {
                     tag: product.id,
                     child: Image.network(
                       height: MediaQuery.of(context).size.height * 0.13,
-                      product.imageUrl,
+                      // product.imageUrl,
+                      product.colorImages[pickedColor ??
+                              product.colorImages.keys.toList()[0]]
+                          .toString(),
                       fit: BoxFit.cover,
                     ),
                   ),

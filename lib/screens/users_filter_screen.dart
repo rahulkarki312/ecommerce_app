@@ -25,7 +25,7 @@ class _UsersFilterScreenState extends State<UsersFilterScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              filterProvider.resetFilter();
+              filterProvider.resetFilter(resetColorFilter: false);
               Navigator.pop(context);
             },
             icon: Icon(Icons.arrow_back)),

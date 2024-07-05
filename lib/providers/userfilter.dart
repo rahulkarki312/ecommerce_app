@@ -64,6 +64,9 @@ class UserFilter with ChangeNotifier {
 
   void selectBrand(String brand) {
     selectedBrand = brand;
+    if (brand == 'All') {
+      resetFilter();
+    }
   }
 
   void pickColor(String color) {
@@ -121,9 +124,11 @@ class UserFilter with ChangeNotifier {
     notifyListeners();
   }
 
-  void resetFilter() {
+  void resetFilter({bool resetColorFilter = true}) {
+    if (resetColorFilter) {
+      pickedColor = null;
+    }
     selectedBrand = 'All';
-    pickedColor = null;
     priceLow = 100;
     priceHigh = 750;
     selectedGender = null;

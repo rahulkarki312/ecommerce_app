@@ -44,7 +44,6 @@ class _ListReviewsScreenState extends State<ListReviewsScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              filterProvider.resetFilter();
               Navigator.pop(context);
             },
             icon: Icon(Icons.arrow_back)),

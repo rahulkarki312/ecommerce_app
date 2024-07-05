@@ -61,7 +61,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     ).findById(productId);
 
     final filterProvider = Provider.of<UserFilter>(context);
-    final pickedShoeColor = filterProvider.pickedShoeColor;
+    // final pickedShoeColor = filterProvider.pickedShoeColor;
+    final pickedShoeColor =
+        filterProvider.pickedColor ?? filterProvider.pickedShoeColor;
     TextEditingController quantityController = TextEditingController(text: '1');
     const gap = SizedBox(height: 10);
     const bigGap = SizedBox(height: 20);
@@ -220,8 +222,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               final color =
                                   filterProvider.getColorFromOption(entry.key);
 
-                              bool isSelected =
-                                  entry.key == filterProvider.pickedShoeColor;
+                              bool isSelected = entry.key == pickedShoeColor;
 
                               return InkWell(
                                 splashColor: Colors.transparent,
