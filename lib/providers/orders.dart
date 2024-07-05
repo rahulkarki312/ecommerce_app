@@ -39,9 +39,9 @@ class Orders with ChangeNotifier {
       return;
     }
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
-    
+    print('response: $extractedData');
     extractedData.forEach((orderId, orderData) {
-      
+      print('orderData: $orderData');
       loadedOrders.add(
         OrderItem(
           id: orderId,

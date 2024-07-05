@@ -29,16 +29,6 @@ class Products with ChangeNotifier {
   };
 
   List<Product> getFilteredItems(UserFilter filterProvider) {
-    //String? pickedColor;
-    // String selectedBrand = 'All';
-    // double priceLow = 200;
-    // double priceHigh = 750;
-    // bool sortByRecent = false;
-    // bool sortByPrice = false;
-    // bool sortByReview = false;
-    // String? selectedGender;
-    // String? sortByOption;
-
     List<Product> filteredItems = [..._items];
 
     //filter by brand
@@ -103,68 +93,80 @@ class Products with ChangeNotifier {
   Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
     final filterString =
         filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
-    // to filter and fetch/set only products added by that user (Only for firebase backend). Filtered by the 'creatorId' key which is equal to the logged in 'userId
-    // for this to work, you must modify the rules on firebase console
     var url = Uri.parse(
-        'https://my-project-e0439-default-rtdb.firebaseio.com/products.json?auth=$authToken&$filterString');
+      'https://my-project-e0439-default-rtdb.firebaseio.com/products.json?auth=$authToken&$filterString',
+    );
+
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      if (extractedData == null) {
-        return;
-      }
+
       url = Uri.parse(
-          'https://my-project-e0439-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken');
+        'https://my-project-e0439-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken',
+      );
       final favoriteResponse = await http.get(url);
       final favoriteData = json.decode(favoriteResponse.body);
+
       final List<Product> loadedProducts = [];
-      extractedData.forEach((prodId, prodData) {
-        loadedProducts.add(Product(
-            id: prodId,
-            title: prodData['title'],
-            description: prodData['description'],
-            price: prodData['price'],
-            // set the isFavorite to false if it is null or if the value is false otherwise, the value itself favoriteData[prodId]
-            isFavorite:
-                favoriteData == null ? false : favoriteData[prodId] ?? false,
-            imageUrl: prodData['imageUrl'],
-            isMan: prodData['isMan'] ?? false,
-            discount:
-                prodData['discount'] == null ? 0.0 : (prodData['discount']),
-            category: prodData['category'] ?? '',
-            reviews: [],
-            colorImages: prodData['colorImages'] != null
-                ? Map<String, String>.from(prodData['colorImages'])
-                : {},
-            gender: prodData['gender'] ?? 'Unisex',
-            sizes: prodData['sizes'] != null
-                ? List<String>.from(prodData['sizes'])
-                : [],
-            brand: prodData['brand'] ?? '',
-            dateAdded: DateTime.parse(prodData['dateAdded'])));
-      });
 
-      for (var item in loadedProducts) {
-        // print(
-        //     '\n colorImages for ${item.title}: ${item.colorImages}, gender: ${item.gender} , sizes: ${item.sizes}');
+      for (var prodId in extractedData.keys) {
+        final prodData = extractedData[prodId];
+
+        // Fetch reviews for the product
         final reviewsUrl = Uri.parse(
-            'https://my-project-e0439-default-rtdb.firebaseio.com/products/${item.id}/reviews.json?auth=$authToken');
-
+          'https://my-project-e0439-default-rtdb.firebaseio.com/products/$prodId/reviews.json?auth=$authToken',
+        );
         final reviewResponse = await http.get(reviewsUrl);
-        // print("${hotel.id}: ${json.decode(reviewResponse.body)}\n\n");
-        final fetchedReviews = json.decode(reviewResponse.body);
+        final fetchedReviews =
+            json.decode(reviewResponse.body) as Map<String, dynamic>?;
+
+        final List<ReviewDetails> reviews = [];
+
         if (fetchedReviews != null) {
           fetchedReviews.forEach((reviewId, review) {
-            item.reviews.add(ReviewDetails(
-                id: reviewId,
-                userId: review['userId'],
-                username: review['username'],
-                review: review['review'],
-                rating: double.parse(review['rating'].toString()),
-                date: DateTime.parse(review['date'])));
+            final rating = double.parse(review['rating'].toString());
+            reviews.add(ReviewDetails(
+              id: reviewId,
+              userId: review['userId'],
+              username: review['username'],
+              review: review['review'],
+              rating: rating,
+              date: DateTime.parse(review['date']),
+            ));
           });
         }
+
+        // Use the calculateAverageRating function to get the average rating
+        final avgReview =
+            reviews.isNotEmpty ? await fetchAverageRating(prodId) : 0.0;
+
+        final product = Product(
+          id: prodId,
+          title: prodData['title'],
+          description: prodData['description'],
+          price: prodData['price'],
+          isFavorite:
+              favoriteData == null ? false : favoriteData[prodId] ?? false,
+          imageUrl: prodData['imageUrl'],
+          isMan: prodData['isMan'] ?? false,
+          discount: prodData['discount'] == null ? 0.0 : (prodData['discount']),
+          category: prodData['category'] ?? '',
+          reviews: reviews,
+          colorImages: prodData['colorImages'] != null
+              ? Map<String, String>.from(prodData['colorImages'])
+              : {},
+          gender: prodData['gender'] ?? 'Unisex',
+          sizes: prodData['sizes'] != null
+              ? List<String>.from(prodData['sizes'])
+              : [],
+          brand: prodData['brand'] ?? '',
+          dateAdded: DateTime.parse(prodData['dateAdded']),
+          avgReview: avgReview,
+        );
+
+        loadedProducts.add(product);
       }
+
       _items = loadedProducts;
       notifyListeners();
     } catch (error) {
@@ -172,9 +174,35 @@ class Products with ChangeNotifier {
     }
   }
 
+  Future<double> fetchAverageRating(String id) async {
+    final url = Uri.parse(
+      'https://us-central1-my-project-e0439.cloudfunctions.net/calculateAverageRating?productId=$id',
+    );
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('review: $data');
+      final averageRating = data['roundedAverageRating'];
+
+      // Check if averageRating is an int, convert to double if necessary
+      if (averageRating is int) {
+        return averageRating.toDouble();
+      } else if (averageRating is double) {
+        return averageRating;
+      } else {
+        return 0.0;
+      }
+    } else {
+      print('Failed to fetch average rating');
+      return 0.0;
+    }
+  }
+
   Future<void> addReview(String review, double rating, String itemId) async {
     final itemIndex = _items.indexWhere((item) => item.id == itemId);
-    // final selectedProduct = _items[itemIndex];
+
     final selectedProduct = findById(itemId);
     try {
       if (itemIndex >= 0) {
@@ -189,6 +217,13 @@ class Products with ChangeNotifier {
               'rating': rating,
               'date': DateTime.now().toString()
             }));
+
+        final double updatedAvgReview =
+            await fetchAverageRating(selectedProduct.id);
+
+        print('calculated avg review after adding: $updatedAvgReview');
+        selectedProduct.avgReview = updatedAvgReview;
+
         selectedProduct.reviews.add(ReviewDetails(
             id: json.decode(response.body)['name'],
             userId: userId,
@@ -196,13 +231,7 @@ class Products with ChangeNotifier {
             review: review,
             rating: rating,
             date: DateTime.now()));
-        // _reviews.add(ReviewDetails(
-        //     id: json.decode(response.body)['name'],
-        //     userId: userId,
-        //     username: username,
-        //     review: review,
-        //     rating: rating,
-        //     date: DateTime.now()));
+
         notifyListeners();
       } else {
         print('...');

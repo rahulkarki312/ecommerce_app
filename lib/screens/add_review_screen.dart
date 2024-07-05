@@ -98,7 +98,6 @@ class _ReviewCardState extends State<_ReviewCard> {
   }
 
   Future<void> _saveForm() async {
-    print('saving');
     final isValid = _form.currentState!.validate();
     if (!isValid) {
       return;

@@ -20,6 +20,7 @@ class Product with ChangeNotifier {
   final String gender;
   final String brand;
   final DateTime dateAdded;
+  double avgReview;
 
   Product({
     required this.id,
@@ -37,6 +38,7 @@ class Product with ChangeNotifier {
     required this.gender,
     required this.brand,
     required this.dateAdded,
+    required this.avgReview,
   });
 
   Future<void> toggleFavoriteStatus(String authToken, String userId) async {

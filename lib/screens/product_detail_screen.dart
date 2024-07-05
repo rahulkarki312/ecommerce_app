@@ -271,18 +271,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               gap,
               Row(
                 children: [
-                  ...List.generate(
-                      5,
-                      (index) => SvgPicture.asset(
-                          'assets/icons/Star Submit Review.svg')),
-                  const Text(
-                    ' 5',
-                    style:
-                        TextStyle(fontWeight: FontWeight.w600, fontSize: 10.0),
+                  RatingBarIndicator(
+                    rating: loadedProduct.avgReview,
+                    itemBuilder: (ctx, idx) => SvgPicture.asset(
+                      'assets/icons/Star Submit Review.svg',
+                    ),
+                    itemCount: 5,
+                    itemSize: 10,
+                    direction: Axis.horizontal,
                   ),
-                  const Text(
-                    ' (11045 Reviews)',
-                    style: TextStyle(fontSize: 10.0, color: CustomColors.grey),
+                  Text(
+                    ' ${loadedProduct.avgReview}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 10.0),
+                  ),
+                  Text(
+                    ' (${loadedProduct.reviews.length} Reviews)',
+                    style: const TextStyle(
+                        fontSize: 10.0, color: CustomColors.grey),
                   )
                 ],
               ),
@@ -353,7 +359,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 SizedBox(
                   height: 250,
                   child: ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: loadedProduct.reviews.length >= 3
                         ? 3
                         : loadedProduct.reviews.length,
