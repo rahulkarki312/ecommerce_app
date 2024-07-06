@@ -4,39 +4,27 @@
 
 Welcome to the Shoesly App repository! This Flutter-based mobile application allows users to browse and shop for shoes, leveraging Firebase for backend services. Below you'll find instructions on setting up the project, assumptions made during development, challenges faced, and additional features included.
 
+
+## Prerequisites
+1. **Flutter SDK**: Make sure you have the Flutter SDK installed on your system. You can download it from the [official Flutter website](https://flutter.dev/docs/get-started/install).
+2. **Git**: Ensure you have Git installed. You can download it from the [official Git website](https://git-scm.com/downloads).
+3. **Code Editor**: Have a code editor installed, such as Visual Studio Code or Android Studio.
+
 ## Project Setup Instructions
 
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/yourusername/ecommerce_shoe_store.git
-   cd ecommerce_shoe_store
+   git clone https://github.com/rahulkarki312/ecommerce_app.git
+   cd ecommerce_app
 
 2.  **Install Dependencies**:
     ```bash
     flutter pub get
-
-3. **Set up Firebase**:
-
-    -   Create a Firebase project.
-    -   Add your Android and iOS apps to the Firebase project.
-    -   Download google-services.json (Android) and GoogleService-Info.plist (iOS) files.
-    -   Place these files in android/app and ios/Runner directories respectively.
-
-4. **Initialize Firebase functions (if applicable)**:
-
+    
+3.  **Run The App**
     ```bash
-    npm install -g firebase-tools
-    firebase login
-    firebase init functions
-
-5. **Deploy Firebase functions (if applicable)**:
-
-    ```bash
-    firebase deploy --only functions
-
-
-
+    flutter run
 
 ## Challenges Faced and Solutions
 
